@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  node-restapp:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npm run dev
+    env_file:
+      - development.env
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - "80:8000"
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    restart: on-failure
+    env_file:
+      - mongodb.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongodb-data:/data/db
+      - ./mongodb-log:/var/log/mongodb
